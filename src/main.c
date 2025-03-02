@@ -1,4 +1,5 @@
 #include <SDL3/SDL.h>
+#include <stdint.h>
 #include <stdio.h>
 
 int main() {
