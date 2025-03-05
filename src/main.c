@@ -7,7 +7,11 @@
 const uint16_t SCREEN_WIDTH = 680;
 const uint16_t SCREEN_HEIGHT = 480;
 
+const uint16_t INITIAL_P1_PADDLE_X = 10;
+const uint16_t INITIAL_P1_PADDLE_Y = SCREEN_HEIGHT / 2;
 const uint8_t PADDLE_VELOCITY = 2;
+const uint16_t PADDLE_HEIGHT = 100;
+const uint16_t PADDLE_WIDTH = 10;
 
 typedef struct
 {
@@ -42,10 +46,10 @@ int main(int argc, char* args[])
   SDL_UpdateWindowSurface(window);
 
   Paddle p = {
-    (uint16_t)10,
-    (uint16_t)SCREEN_HEIGHT / 2,
-    100,
-    10,
+    INITIAL_P1_PADDLE_X,
+    INITIAL_P1_PADDLE_Y,
+    PADDLE_HEIGHT,
+    PADDLE_WIDTH,
     0,
   };
 
@@ -100,8 +104,8 @@ int main(int argc, char* args[])
     }
 
     // logic
-    p.y_position += p.vertical_velocity;
-    SDL_Log("%d\n", p.y_position);
+    if (p.y_position + p.vertical_velocity + PADDLE_HEIGHT < SCREEN_HEIGHT && p.y_position + p.vertical_velocity > 0)
+      p.y_position += p.vertical_velocity;
 
     // render
     SDL_RenderClear(renderer);
