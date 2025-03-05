@@ -91,10 +91,14 @@ int main(int argc, char* args[])
           break;
         case SDLK_W:
           p1.vertical_velocity = -PADDLE_VELOCITY;
-          p2.vertical_velocity = -PADDLE_VELOCITY;
           break;
         case SDLK_S:
           p1.vertical_velocity = PADDLE_VELOCITY;
+          break;
+        case SDLK_I:
+          p2.vertical_velocity = -PADDLE_VELOCITY;
+          break;
+        case SDLK_K:
           p2.vertical_velocity = PADDLE_VELOCITY;
           break;
         default:
@@ -108,6 +112,9 @@ int main(int argc, char* args[])
         case SDLK_W:
         case SDLK_S:
           p1.vertical_velocity = 0;
+          break;
+        case SDLK_I:
+        case SDLK_K:
           p2.vertical_velocity = 0;
           break;
         default:
