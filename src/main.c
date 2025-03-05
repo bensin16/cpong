@@ -6,12 +6,14 @@
 
 const uint16_t SCREEN_WIDTH = 680;
 const uint16_t SCREEN_HEIGHT = 480;
+const uint16_t PADDLE_HEIGHT = 100;
+const uint16_t PADDLE_WIDTH = 10;
+const uint8_t PADDLE_VELOCITY = 2;
 
 const uint16_t INITIAL_P1_PADDLE_X = 10;
 const uint16_t INITIAL_P1_PADDLE_Y = SCREEN_HEIGHT / 2;
-const uint8_t PADDLE_VELOCITY = 2;
-const uint16_t PADDLE_HEIGHT = 100;
-const uint16_t PADDLE_WIDTH = 10;
+const uint16_t INITIAL_P2_PADDLE_X = SCREEN_WIDTH - 10 - PADDLE_WIDTH;
+const uint16_t INITIAL_P2_PADDLE_Y = SCREEN_HEIGHT / 2;
 
 typedef struct
 {
@@ -45,9 +47,17 @@ int main(int argc, char* args[])
   SDL_FillSurfaceRect(screen_surface, NULL, SDL_MapSurfaceRGB(screen_surface, 0x11, 0x11, 0x11));
   SDL_UpdateWindowSurface(window);
 
-  Paddle p = {
+  Paddle p1 = {
     INITIAL_P1_PADDLE_X,
     INITIAL_P1_PADDLE_Y,
+    PADDLE_HEIGHT,
+    PADDLE_WIDTH,
+    0,
+  };
+
+  Paddle p2 = {
+    INITIAL_P2_PADDLE_X,
+    INITIAL_P2_PADDLE_Y,
     PADDLE_HEIGHT,
     PADDLE_WIDTH,
     0,
@@ -80,10 +90,12 @@ int main(int argc, char* args[])
           quit = true;
           break;
         case SDLK_W:
-          p.vertical_velocity = -PADDLE_VELOCITY;
+          p1.vertical_velocity = -PADDLE_VELOCITY;
+          p2.vertical_velocity = -PADDLE_VELOCITY;
           break;
         case SDLK_S:
-          p.vertical_velocity = PADDLE_VELOCITY;
+          p1.vertical_velocity = PADDLE_VELOCITY;
+          p2.vertical_velocity = PADDLE_VELOCITY;
           break;
         default:
           break;
@@ -95,7 +107,8 @@ int main(int argc, char* args[])
         {
         case SDLK_W:
         case SDLK_S:
-          p.vertical_velocity = 0;
+          p1.vertical_velocity = 0;
+          p2.vertical_velocity = 0;
           break;
         default:
           break;
@@ -104,18 +117,26 @@ int main(int argc, char* args[])
     }
 
     // logic
-    if (p.y_position + p.vertical_velocity + PADDLE_HEIGHT < SCREEN_HEIGHT && p.y_position + p.vertical_velocity > 0)
-      p.y_position += p.vertical_velocity;
+    if (p1.y_position + p1.vertical_velocity + PADDLE_HEIGHT < SCREEN_HEIGHT && p1.y_position + p1.vertical_velocity > 0)
+      p1.y_position += p1.vertical_velocity;
+
+    if (p2.y_position + p2.vertical_velocity + PADDLE_HEIGHT < SCREEN_HEIGHT && p2.y_position + p2.vertical_velocity > 0)
+      p2.y_position += p2.vertical_velocity;
 
     // render
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 0x11, 0x11, 0x11, 0xFF);
     SDL_RenderFillRect(renderer, &windowRect);
 
-    SDL_FRect paddleRect = { p.x_position, p.y_position, p.width, p.height };
+    SDL_FRect p1Rect = { p1.x_position, p1.y_position, p1.width, p1.height };
+    SDL_FRect p2Rect = { p2.x_position, p2.y_position, p2.width, p2.height };
+
+    SDL_FRect rects[] = { p1Rect, p2Rect };
 
     SDL_SetRenderDrawColor(renderer, 0xEE, 0xEE, 0xEE, 0xFF);
-    SDL_RenderFillRect(renderer, &paddleRect);
+    SDL_RenderFillRects(renderer, rects, 2);
+    SDL_RenderFillRect(renderer, &p1Rect);
+    SDL_RenderFillRect(renderer, &p2Rect);
     SDL_RenderPresent(renderer);
   }
 
