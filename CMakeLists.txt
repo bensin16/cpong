@@ -22,8 +22,6 @@ add_custom_command(
   $<TARGET_FILE_DIR:pong>
 )
 
-#file(MAKE_DIRECTORY $<TARGET_FILE_DIR:pong>/images)
-
 add_custom_command(
   TARGET pong POST_BUILD COMMAND
   ${CMAKE_COMMAND} -E copy_directory
