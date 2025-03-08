@@ -1,8 +1,10 @@
 #include "SDL3/SDL_error.h"
 #include "SDL3/SDL_log.h"
+#include "SDL3/SDL_surface.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <stdint.h>
 #include <time.h>
 
@@ -25,6 +27,7 @@ const int8_t INITIAL_BALL_X_VELOCITY = -2;
 const int8_t INITIAL_BALL_Y_VELOCITY = -1;
 
 const char* BALL_PATH = "assets/pongball.png";
+const char* FONT_PATH = "assets/8bitOperatorPlus8-Regular.ttf";
 
 typedef struct
 {
@@ -73,6 +76,14 @@ int main(int argc, char* args[])
   if (!SDL_Init(SDL_INIT_VIDEO))
   {
     SDL_Log("SDL couldn't initialize. SDL_Error: %s\n", SDL_GetError());
+    return 1;
+  }
+
+  if (!TTF_Init())
+  {
+    SDL_Log("SDL_ttf couldn't initialize. SDL_ttf: %s\n", SDL_GetError());
+    SDL_Quit();
+    return 1;
   }
 
   if (!SDL_CreateWindowAndRenderer("pong", SCREEN_WIDTH, SCREEN_HEIGHT, 0, &window, &renderer))
@@ -82,6 +93,18 @@ int main(int argc, char* args[])
   }
 
   SDL_SetRenderVSync(renderer, 1);
+
+  TTF_Font* font = TTF_OpenFont(FONT_PATH, 128);
+  if (!font)
+  {
+    SDL_Log("SDL_ttf couldn't initialize. SDL_ttf: %s\n", SDL_GetError());
+    return 1;
+  }
+
+  SDL_Color textColor = { 0xFF, 0xFF, 0xFF };
+  SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Pong time", 0, textColor);
+  SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+  SDL_DestroySurface(textSurface);
 
   SDL_Texture* ball_texture = load_texture(BALL_PATH, renderer);
   if (!ball_texture)
@@ -217,6 +240,9 @@ int main(int argc, char* args[])
     SDL_SetRenderDrawColor(renderer, 0x11, 0x11, 0x11, 0xFF);
     SDL_RenderFillRect(renderer, &window_rect);
 
+    SDL_FRect textRect = { 50, 50, 400, 100 };
+    SDL_RenderTexture(renderer, textTexture, NULL, &textRect);
+
     SDL_FRect p1_rect = { p1.x_position, p1.y_position, p1.width, p1.height };
     SDL_FRect p2_rect = { p2.x_position, p2.y_position, p2.width, p2.height };
 
@@ -232,6 +258,7 @@ int main(int argc, char* args[])
 
   // shutdown
   SDL_DestroyWindow(window);
+  TTF_Quit();
   SDL_Quit();
 
   return 0;

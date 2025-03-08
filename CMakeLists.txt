@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall -Werror")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall -Werror")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall")
 
 set(SDL3IMAGE_AVIF OFF)
+set(SDLTTF_VENDORED ON)
 
 project(pong C)
 
@@ -19,6 +21,7 @@ add_custom_command(
   ${CMAKE_COMMAND} -E copy_if_different
   $<TARGET_FILE:SDL3::SDL3>
   $<TARGET_FILE:SDL3_image::SDL3_image>
+  $<TARGET_FILE:SDL3_ttf::SDL3_ttf>
   $<TARGET_FILE_DIR:pong>
 )
 
