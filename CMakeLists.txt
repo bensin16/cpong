@@ -25,6 +25,6 @@ add_custom_command(
 add_custom_command(
   TARGET pong POST_BUILD COMMAND
   ${CMAKE_COMMAND} -E copy_directory
-  ${CMAKE_SOURCE_DIR}/images/
-  $<TARGET_FILE_DIR:pong>/images
+  ${CMAKE_SOURCE_DIR}/assets/
+  $<TARGET_FILE_DIR:pong>/assets
 )

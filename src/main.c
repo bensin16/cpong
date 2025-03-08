@@ -24,7 +24,7 @@ const uint16_t INITIAL_BALL_WIDTH = 16;
 const int8_t INITIAL_BALL_X_VELOCITY = -2;
 const int8_t INITIAL_BALL_Y_VELOCITY = -1;
 
-const char* BALL_PATH = "images/pongball.png";
+const char* BALL_PATH = "assets/pongball.png";
 
 typedef struct
 {
