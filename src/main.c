@@ -157,6 +157,14 @@ int main(int argc, char* args[])
         case SDLK_K:
           p2.vertical_velocity = PADDLE_VELOCITY;
           break;
+        case SDLK_R:
+          ball.x = INITIAL_BALL_X_POSITION;
+          ball.y = INITIAL_BALL_Y_POSITION;
+          ball.height = INITIAL_BALL_HEIGHT;
+          ball.width = INITIAL_BALL_WIDTH;
+          ball.x_velocity = INITIAL_BALL_X_VELOCITY;
+          ball.y_velocity = INITIAL_BALL_Y_VELOCITY;
+          break;
         default:
           break;
         }
@@ -179,10 +187,16 @@ int main(int argc, char* args[])
       }
     }
 
-    if (ball.x <= 0 || ball.x + ball.width >= SCREEN_WIDTH)
+    if (ball.x == p1.x_position + p1.width && ball.y >= p1.y_position && ball.y <= p1.y_position + p1.height)
     {
       ball.x_velocity = -ball.x_velocity;
     }
+
+    if (ball.x + ball.width == p2.x_position && ball.y > p2.y_position && ball.y < p2.y_position + p2.height)
+    {
+      ball.x_velocity = -ball.x_velocity;
+    }
+
     if (ball.y <= 0 || ball.y + ball.height >= SCREEN_HEIGHT)
     {
       ball.y_velocity = -ball.y_velocity;
