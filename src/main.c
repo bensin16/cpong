@@ -1,12 +1,21 @@
 #include "SDL3/SDL_error.h"
 #include "SDL3/SDL_log.h"
+#include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_stdinc.h"
 #include "SDL3/SDL_surface.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <time.h>
+
+typedef struct
+{
+  uint16_t x;
+  uint16_t y;
+} Point;
 
 const uint16_t SCREEN_WIDTH = 680;
 const uint16_t SCREEN_HEIGHT = 480;
@@ -25,6 +34,11 @@ const uint16_t INITIAL_BALL_HEIGHT = 16;
 const uint16_t INITIAL_BALL_WIDTH = 16;
 const int8_t INITIAL_BALL_X_VELOCITY = -2;
 const int8_t INITIAL_BALL_Y_VELOCITY = -1;
+
+const uint16_t SCORE_DIGIT_WIDTH = 35;
+const uint16_t SCORE_DIGIT_HEIGHT = 70;
+const Point P1_SCORE_POINT = { SCREEN_WIDTH / 5, 10 };
+const Point P2_SCORE_POINT = { SCREEN_WIDTH - (SCREEN_WIDTH / 5) - SCORE_DIGIT_WIDTH, 10 };
 
 const char* BALL_PATH = "assets/pongball.png";
 const char* FONT_PATH = "assets/8bitOperatorPlus8-Regular.ttf";
@@ -67,6 +81,15 @@ SDL_Texture* load_texture(const char* path, SDL_Renderer* renderer)
   return new_texture;
 }
 
+SDL_Texture* create_texture_from_string(SDL_Renderer* renderer, TTF_Font* font, const char* text, size_t text_length, SDL_Color color)
+{
+  SDL_Surface* text_surface = TTF_RenderText_Solid(font, text, text_length, color);
+  SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+  SDL_DestroySurface(text_surface);
+
+  return text_texture;
+}
+
 int main(int argc, char* args[])
 {
   SDL_Window* window = NULL;
@@ -94,17 +117,14 @@ int main(int argc, char* args[])
 
   SDL_SetRenderVSync(renderer, 1);
 
-  TTF_Font* font = TTF_OpenFont(FONT_PATH, 128);
+  TTF_Font* font = TTF_OpenFont(FONT_PATH, 64);
   if (!font)
   {
     SDL_Log("SDL_ttf couldn't initialize. SDL_ttf: %s\n", SDL_GetError());
     return 1;
   }
 
-  SDL_Color textColor = { 0xFF, 0xFF, 0xFF };
-  SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Pong time", 0, textColor);
-  SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-  SDL_DestroySurface(textSurface);
+  uint8_t p1_score = 0;
 
   SDL_Texture* ball_texture = load_texture(BALL_PATH, renderer);
   if (!ball_texture)
@@ -215,7 +235,7 @@ int main(int argc, char* args[])
       ball.x_velocity = -ball.x_velocity;
     }
 
-    if (ball.x + ball.width == p2.x_position && ball.y > p2.y_position && ball.y < p2.y_position + p2.height)
+    if (ball.x + ball.width == p2.x_position && ball.y >= p2.y_position && ball.y <= p2.y_position + p2.height)
     {
       ball.x_velocity = -ball.x_velocity;
     }
@@ -240,8 +260,15 @@ int main(int argc, char* args[])
     SDL_SetRenderDrawColor(renderer, 0x11, 0x11, 0x11, 0xFF);
     SDL_RenderFillRect(renderer, &window_rect);
 
-    SDL_FRect textRect = { 50, 50, 400, 100 };
-    SDL_RenderTexture(renderer, textTexture, NULL, &textRect);
+    SDL_Color text_color = { 0xFF, 0xFF, 0xFF };
+    char p1_score_text[3];
+    SDL_itoa(p1_score, p1_score_text, 10);
+    SDL_Texture* text_texture = create_texture_from_string(renderer, font, p1_score_text, 0, text_color);
+    SDL_FRect p1_score_rect = { P1_SCORE_POINT.x, P1_SCORE_POINT.y, SCORE_DIGIT_WIDTH, SCORE_DIGIT_HEIGHT };
+    SDL_RenderTexture(renderer, text_texture, NULL, &p1_score_rect);
+
+    // SDL_FRect textRect = { 50, 50, 400, 100 };
+    // SDL_RenderTexture(renderer, text_texture, NULL, &textRect);
 
     SDL_FRect p1_rect = { p1.x_position, p1.y_position, p1.width, p1.height };
     SDL_FRect p2_rect = { p2.x_position, p2.y_position, p2.width, p2.height };
