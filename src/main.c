@@ -117,6 +117,9 @@ int main(int argc, char* args[])
     SCREEN_HEIGHT
   };
 
+  bool frame_by_frame_mode = false;
+  bool next_frame = false;
+
   // game loop
   bool quit = false;
   // input
@@ -135,6 +138,12 @@ int main(int argc, char* args[])
         {
         case SDLK_ESCAPE:
           quit = true;
+          break;
+        case SDLK_T:
+          frame_by_frame_mode = !frame_by_frame_mode;
+          break;
+        case SDLK_C:
+          next_frame = true;
           break;
         case SDLK_W:
           p1.vertical_velocity = -PADDLE_VELOCITY;
@@ -178,12 +187,17 @@ int main(int argc, char* args[])
       }
     }
 
-    if (ball.x == p1.x_position + p1.width && ball.y >= p1.y_position && ball.y <= p1.y_position + p1.height)
+    if (frame_by_frame_mode && !next_frame)
+    {
+      continue;
+    }
+
+    if (ball.x == p1.x_position + p1.width && ball.y + ball.height >= p1.y_position && ball.y <= p1.y_position + p1.height)
     {
       ball.x_velocity = -ball.x_velocity;
     }
 
-    if (ball.x + ball.width == p2.x_position && ball.y >= p2.y_position && ball.y <= p2.y_position + p2.height)
+    if (ball.x + ball.width == p2.x_position && ball.y + ball.height >= p2.y_position && ball.y <= p2.y_position + p2.height)
     {
       ball.x_velocity = -ball.x_velocity;
     }
@@ -193,7 +207,6 @@ int main(int argc, char* args[])
       ball.y_velocity = -ball.y_velocity;
     }
 
-    // logic
     if (p1.y_position + p1.vertical_velocity + PADDLE_HEIGHT < SCREEN_HEIGHT && p1.y_position + p1.vertical_velocity > 0)
       p1.y_position += p1.vertical_velocity;
 
@@ -215,9 +228,6 @@ int main(int argc, char* args[])
     SDL_FRect p1_score_rect = { P1_SCORE_POINT.x, P1_SCORE_POINT.y, SCORE_DIGIT_WIDTH, SCORE_DIGIT_HEIGHT };
     SDL_RenderTexture(renderer, text_texture, NULL, &p1_score_rect);
 
-    // SDL_FRect textRect = { 50, 50, 400, 100 };
-    // SDL_RenderTexture(renderer, text_texture, NULL, &textRect);
-
     SDL_FRect p1_rect = { p1.x_position, p1.y_position, p1.width, p1.height };
     SDL_FRect p2_rect = { p2.x_position, p2.y_position, p2.width, p2.height };
 
@@ -229,6 +239,8 @@ int main(int argc, char* args[])
     SDL_RenderTexture(renderer, ball_texture, NULL, &ball_rect);
 
     SDL_RenderPresent(renderer);
+
+    next_frame = false;
   }
 
   // shutdown
