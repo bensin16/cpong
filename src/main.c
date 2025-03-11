@@ -73,6 +73,7 @@ int main(int argc, char* args[])
   }
 
   uint8_t p1_score = 0;
+  uint8_t p2_score = 0;
 
   SDL_Texture* ball_texture = load_texture(BALL_PATH, renderer);
   if (!ball_texture)
@@ -117,6 +118,7 @@ int main(int argc, char* args[])
     SCREEN_HEIGHT
   };
 
+  bool reset = false;
   bool frame_by_frame_mode = false;
   bool next_frame = false;
 
@@ -192,6 +194,29 @@ int main(int argc, char* args[])
       continue;
     }
 
+    if (ball.x + ball.width == 0)
+    {
+      p2_score += 1;
+      reset = true;
+    }
+    else if (ball.x == SCREEN_WIDTH)
+    {
+      p1_score += 1;
+      reset = true;
+    }
+
+    if (reset)
+    {
+      ball.x = INITIAL_BALL_X_POSITION;
+      ball.y = INITIAL_BALL_Y_POSITION;
+      ball.height = INITIAL_BALL_HEIGHT;
+      ball.width = INITIAL_BALL_WIDTH;
+      ball.x_velocity = INITIAL_BALL_X_VELOCITY;
+      ball.y_velocity = INITIAL_BALL_Y_VELOCITY;
+
+      reset = false;
+    }
+
     if (ball.x == p1.x_position + p1.width && ball.y + ball.height >= p1.y_position && ball.y <= p1.y_position + p1.height)
     {
       ball.x_velocity = -ball.x_velocity;
@@ -224,9 +249,15 @@ int main(int argc, char* args[])
     SDL_Color text_color = { 0xFF, 0xFF, 0xFF };
     char p1_score_text[3];
     SDL_itoa(p1_score, p1_score_text, 10);
-    SDL_Texture* text_texture = create_texture_from_string(renderer, font, p1_score_text, 0, text_color);
+    SDL_Texture* p1_score_texture = create_texture_from_string(renderer, font, p1_score_text, 0, text_color);
     SDL_FRect p1_score_rect = { P1_SCORE_POINT.x, P1_SCORE_POINT.y, SCORE_DIGIT_WIDTH, SCORE_DIGIT_HEIGHT };
-    SDL_RenderTexture(renderer, text_texture, NULL, &p1_score_rect);
+    SDL_RenderTexture(renderer, p1_score_texture, NULL, &p1_score_rect);
+
+    char p2_score_text[3];
+    SDL_itoa(p2_score, p2_score_text, 10);
+    SDL_Texture* p2_score_texture = create_texture_from_string(renderer, font, p2_score_text, 0, text_color);
+    SDL_FRect p2_score_rect = { P2_SCORE_POINT.x, P2_SCORE_POINT.y, SCORE_DIGIT_WIDTH, SCORE_DIGIT_HEIGHT };
+    SDL_RenderTexture(renderer, p2_score_texture, NULL, &p2_score_rect);
 
     SDL_FRect p1_rect = { p1.x_position, p1.y_position, p1.width, p1.height };
     SDL_FRect p2_rect = { p2.x_position, p2.y_position, p2.width, p2.height };
