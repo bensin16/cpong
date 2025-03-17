@@ -314,6 +314,7 @@ int main(int argc, char* args[])
           break;
         case SDLK_RETURN:
           game->current_state = GS_MID_POINT;
+          break;
         default:
           break;
         }
