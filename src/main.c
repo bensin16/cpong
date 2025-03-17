@@ -50,7 +50,7 @@ void init_game(Game* game)
   game->ball = ball;
   game->p1_score = 0;
   game->p2_score = 0;
-  game->current_state = GS_MID_POINT;
+  game->current_state = GS_MENU;
 }
 
 void reset_ball(Ball* ball)
@@ -166,31 +166,40 @@ void render_game(Game* game, SDL_Renderer* renderer, TTF_Font* font, SDL_Texture
   CHECK_PTR_OR_RETURN(font);
   CHECK_PTR_OR_RETURN(ball_texture);
 
-  SDL_FRect window_rect = {
-    0,
-    0,
-    SCREEN_WIDTH,
-    SCREEN_HEIGHT
+  switch (game->current_state)
+  {
+  case GS_MENU:
+    break;
+  case GS_MID_POINT:
+  {
+    SDL_FRect window_rect = {
+      0,
+      0,
+      SCREEN_WIDTH,
+      SCREEN_HEIGHT
+    };
+
+    SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(renderer, 0x11, 0x11, 0x11, 0xFF);
+    SDL_RenderFillRect(renderer, &window_rect);
+
+    render_score(renderer, font, game->p1_score, P1_SCORE_POINT, SCORE_DIGIT_WIDTH, SCORE_DIGIT_HEIGHT);
+    render_score(renderer, font, game->p2_score, P2_SCORE_POINT, SCORE_DIGIT_WIDTH, SCORE_DIGIT_HEIGHT);
+
+    SDL_FRect p1_rect = { game->p1.x_position, game->p1.y_position, game->p1.width, game->p1.height };
+    SDL_FRect p2_rect = { game->p2.x_position, game->p2.y_position, game->p2.width, game->p2.height };
+
+    SDL_FRect rects[] = { p1_rect, p2_rect };
+    SDL_SetRenderDrawColor(renderer, 0xEE, 0xEE, 0xEE, 0xFF);
+    SDL_RenderFillRects(renderer, rects, 2);
+
+    SDL_FRect ball_rect = { game->ball.x, game->ball.y, game->ball.width, game->ball.height };
+    SDL_RenderTexture(renderer, ball_texture, NULL, &ball_rect);
+
+    SDL_RenderPresent(renderer);
+    break;
+  }
   };
-
-  SDL_RenderClear(renderer);
-  SDL_SetRenderDrawColor(renderer, 0x11, 0x11, 0x11, 0xFF);
-  SDL_RenderFillRect(renderer, &window_rect);
-
-  render_score(renderer, font, game->p1_score, P1_SCORE_POINT, SCORE_DIGIT_WIDTH, SCORE_DIGIT_HEIGHT);
-  render_score(renderer, font, game->p2_score, P2_SCORE_POINT, SCORE_DIGIT_WIDTH, SCORE_DIGIT_HEIGHT);
-
-  SDL_FRect p1_rect = { game->p1.x_position, game->p1.y_position, game->p1.width, game->p1.height };
-  SDL_FRect p2_rect = { game->p2.x_position, game->p2.y_position, game->p2.width, game->p2.height };
-
-  SDL_FRect rects[] = { p1_rect, p2_rect };
-  SDL_SetRenderDrawColor(renderer, 0xEE, 0xEE, 0xEE, 0xFF);
-  SDL_RenderFillRects(renderer, rects, 2);
-
-  SDL_FRect ball_rect = { game->ball.x, game->ball.y, game->ball.width, game->ball.height };
-  SDL_RenderTexture(renderer, ball_texture, NULL, &ball_rect);
-
-  SDL_RenderPresent(renderer);
 }
 
 SDL_Texture* load_texture(const char* path, SDL_Renderer* renderer)
@@ -303,6 +312,8 @@ int main(int argc, char* args[])
         case SDLK_R:
           reset_ball(&game->ball);
           break;
+        case SDLK_RETURN:
+          game->current_state = GS_MID_POINT;
         default:
           break;
         }
