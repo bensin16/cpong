@@ -17,7 +17,7 @@
 void init_game(Game* game)
 {
   CHECK_PTR_OR_RETURN(game);
-  // just keep them all on the stack? I dont see why not
+
   Paddle p1 = {
     INITIAL_P1_PADDLE_X,
     INITIAL_P1_PADDLE_Y,
@@ -93,7 +93,6 @@ void update_game(Game* game)
   switch (game->current_state)
   {
   case GS_MENU:
-    SDL_Log("menu state\n");
     break;
   case GS_MID_POINT:
   {
@@ -156,6 +155,18 @@ void render_score(SDL_Renderer* renderer, TTF_Font* font, uint8_t score, Point s
   SDL_RenderTexture(renderer, score_texture, NULL, &score_rect);
 }
 
+void render_menu(SDL_Renderer* renderer, TTF_Font* font)
+{
+  SDL_Color text_color = { 0xFF, 0xFF, 0xFF };
+  SDL_Texture* pong_text_texture = create_texture_from_string(renderer, font, PONG_TITLE, CHARS_IN_PONG, text_color);
+  SDL_FRect pong_text_rect = { GAME_TITLE_TEXT_X, GAME_TITLE_TEXT_Y, GAME_TITLE_CHAR_WIDTH * CHARS_IN_PONG, GAME_TITLE_CHAR_HEIGHT };
+  SDL_RenderTexture(renderer, pong_text_texture, NULL, &pong_text_rect);
+
+  SDL_Texture* enter_text_texture = create_texture_from_string(renderer, font, ENTER_TO_BEGIN_TEXT, ENTER_TO_BEGIN_TEXT_LENGTH, text_color);
+  SDL_FRect enter_text_rect = { ENTER_TO_BEGIN_TEXT_X, ENTER_TO_BEGIN_TEXT_Y, ENTER_TO_BEGIN_TEXT_CHAR_WIDTH * ENTER_TO_BEGIN_TEXT_LENGTH, ENTER_TO_BEGIN_TEXT_CHAR_HEIGHT };
+  SDL_RenderTexture(renderer, enter_text_texture, NULL, &enter_text_rect);
+}
+
 // its just ball texture for now but I should make a struct that holds ptrs to all the textures I need?
 // Since I have few textures now, I could do an array of texture ptrs and i can index them with an enum
 // in the future I might have sprites for paddles, the stadium, hit effects, buildings?
@@ -166,23 +177,24 @@ void render_game(Game* game, SDL_Renderer* renderer, TTF_Font* font, SDL_Texture
   CHECK_PTR_OR_RETURN(font);
   CHECK_PTR_OR_RETURN(ball_texture);
 
+  SDL_FRect window_rect = {
+    0,
+    0,
+    SCREEN_WIDTH,
+    SCREEN_HEIGHT
+  };
+
+  SDL_RenderClear(renderer);
+  SDL_SetRenderDrawColor(renderer, 0x11, 0x11, 0x11, 0xFF);
+  SDL_RenderFillRect(renderer, &window_rect);
+
   switch (game->current_state)
   {
   case GS_MENU:
+    render_menu(renderer, font);
     break;
   case GS_MID_POINT:
   {
-    SDL_FRect window_rect = {
-      0,
-      0,
-      SCREEN_WIDTH,
-      SCREEN_HEIGHT
-    };
-
-    SDL_RenderClear(renderer);
-    SDL_SetRenderDrawColor(renderer, 0x11, 0x11, 0x11, 0xFF);
-    SDL_RenderFillRect(renderer, &window_rect);
-
     render_score(renderer, font, game->p1_score, P1_SCORE_POINT, SCORE_DIGIT_WIDTH, SCORE_DIGIT_HEIGHT);
     render_score(renderer, font, game->p2_score, P2_SCORE_POINT, SCORE_DIGIT_WIDTH, SCORE_DIGIT_HEIGHT);
 
@@ -196,10 +208,11 @@ void render_game(Game* game, SDL_Renderer* renderer, TTF_Font* font, SDL_Texture
     SDL_FRect ball_rect = { game->ball.x, game->ball.y, game->ball.width, game->ball.height };
     SDL_RenderTexture(renderer, ball_texture, NULL, &ball_rect);
 
-    SDL_RenderPresent(renderer);
     break;
   }
   };
+
+  SDL_RenderPresent(renderer);
 }
 
 SDL_Texture* load_texture(const char* path, SDL_Renderer* renderer)
