@@ -121,12 +121,26 @@ void update_game(Game* game)
     if (game->ball.x + game->ball.width == 0)
     {
       game->p2_score += 1;
+      if (game->p2_score == 10)
+      {
+        game->current_state = GS_MENU;
+        init_game(game);
+        break;
+      }
       reset_ball(&game->ball);
+      game->ball.x_velocity = -2;
     }
     else if (game->ball.x == SCREEN_WIDTH)
     {
       game->p1_score += 1;
+      if (game->p2_score == 10)
+      {
+        game->current_state = GS_MENU;
+        init_game(game);
+        break;
+      }
       reset_ball(&game->ball);
+      game->ball.x_velocity = 2;
     }
     break;
   }
