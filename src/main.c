@@ -103,11 +103,41 @@ void update_game(Game* game)
     if (game->ball.x == game->p1.x_position + game->p1.width && game->ball.y + game->ball.height >= game->p1.y_position && game->ball.y <= game->p1.y_position + game->p1.height)
     {
       game->ball.x_velocity = -game->ball.x_velocity;
+      if (abs(game->ball.x_velocity < 2))
+      {
+        game->ball.x_velocity += 1;
+      }
+      switch (game->p1.current_state)
+      {
+      case PS_MOVING_DOWN:
+        game->ball.y_velocity += PADDLE_VELOCITY;
+        break;
+      case PS_MOVING_UP:
+        game->ball.y_velocity += -PADDLE_VELOCITY;
+        break;
+      case PS_STILL:
+        break;
+      }
     }
 
     if (game->ball.x + game->ball.width == game->p2.x_position && game->ball.y + game->ball.height >= game->p2.y_position && game->ball.y <= game->p2.y_position + game->p2.height)
     {
       game->ball.x_velocity = -game->ball.x_velocity;
+      if (abs(game->ball.x_velocity < 2))
+      {
+        game->ball.x_velocity += -1;
+      }
+      switch (game->p2.current_state)
+      {
+      case PS_MOVING_DOWN:
+        game->ball.y_velocity += PADDLE_VELOCITY;
+        break;
+      case PS_MOVING_UP:
+        game->ball.y_velocity += -PADDLE_VELOCITY;
+        break;
+      case PS_STILL:
+        break;
+      }
     }
 
     if (game->ball.y <= 0 || game->ball.y + game->ball.height >= SCREEN_HEIGHT)
@@ -128,7 +158,12 @@ void update_game(Game* game)
         break;
       }
       reset_ball(&game->ball);
-      game->ball.x_velocity = -2;
+      game->ball.x_velocity = -1 * (rand() % 3);
+      if (game->ball.x_velocity == 0)
+      {
+        game->ball.x_velocity = 1;
+      }
+      game->ball.y_velocity = rand() % 3;
     }
     else if (game->ball.x == SCREEN_WIDTH)
     {
@@ -140,7 +175,12 @@ void update_game(Game* game)
         break;
       }
       reset_ball(&game->ball);
-      game->ball.x_velocity = 2;
+      game->ball.x_velocity = rand() % 3;
+      if (game->ball.x_velocity == 0)
+      {
+        game->ball.x_velocity = 1;
+      }
+      game->ball.y_velocity = rand() % 3;
     }
     break;
   }
@@ -250,6 +290,8 @@ SDL_Texture* load_texture(const char* path, SDL_Renderer* renderer)
 
 int main(int argc, char* args[])
 {
+  srand(time(0));
+
   SDL_Window* window = NULL;
   SDL_Surface* screen_surface = NULL;
   SDL_Renderer* renderer = NULL;
